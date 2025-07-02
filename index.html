@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)file:///C:/Users/siderim/Desktop/GestFarm/GestFarm.html -->
+<html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Farmaci</title>
+    <style>
+        :root {
+            --primary: #6AC8FF;
+            --secondary: #FFB800;
+            --danger: #FF5A5F;
+            --light-bg: #F5F9FF;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .medicine-card {
+            border-left: 4px solid var(--primary);
+        }
+        .medicine-card.low {
+            border-left-color: var(--danger);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #ddd;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        #medicine-list, #patient-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        #medicine-image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 10px;
+            border: 1px dashed #ccc;
+        }
+        .frequency-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .frequency-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .warning {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        .action-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .checkbox-container {
+            margin: 10px 0;
+        }
+        .checkbox-container input {
+            width: auto;
+            margin-right: 5px;
+        }
+        @media (min-width: 600px) {
+            #medicine-list, #patient-list {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gestione Farmaci</h1>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab(&#39;medicines&#39;)">Farmaci</div>
+            <div class="tab" onclick="showTab(&#39;patients&#39;)">Pazienti</div>
+            <div class="tab" onclick="showTab(&#39;add-medicine&#39;)">Aggiungi Farmaco</div>
+            <div class="tab" onclick="showTab(&#39;add-patient&#39;)">Aggiungi Paziente</div>
+        </div>
+
+        <!-- Lista Farmaci -->
+        <div id="medicines" class="tab-content">
+            <h2>I tuoi Farmaci</h2>
+            <button onclick="requestMultipleMedicines()" class="btn btn-primary">Richiedi farmaci selezionati al Dottore</button>
+            <div id="medicine-list"></div>
+        </div>
+
+        <!-- Lista Pazienti -->
+        <div id="patients" class="tab-content hidden">
+            <h2>Pazienti</h2>
+            <div id="patient-list">
+                    <div class="card">
+                        <div class="action-buttons">
+                            <button onclick="editPatient(&#39;1750925735058&#39;)" class="btn btn-secondary">Modifica</button>
+                            <button onclick="deletePatient(&#39;1750925735058&#39;)" class="btn btn-danger">Elimina</button>
+                        </div>
+                        <h3>Francesca De Rosa</h3>
+                        <p>Farmaci: 0</p>
+                        <ul>
+                            
+                        </ul>
+                    </div>
+                
+                    <div class="card">
+                        <div class="action-buttons">
+                            <button onclick="editPatient(&#39;1750999047289&#39;)" class="btn btn-secondary">Modifica</button>
+                            <button onclick="deletePatient(&#39;1750999047289&#39;)" class="btn btn-danger">Elimina</button>
+                        </div>
+                        <h3>Edoardo Sideri</h3>
+                        <p>Farmaci: 0</p>
+                        <ul>
+                            
+                        </ul>
+                    </div>
+                
+                    <div class="card">
+                        <div class="action-buttons">
+                            <button onclick="editPatient(&#39;1751007923281&#39;)" class="btn btn-secondary">Modifica</button>
+                            <button onclick="deletePatient(&#39;1751007923281&#39;)" class="btn btn-danger">Elimina</button>
+                        </div>
+                        <h3>rrrrrrrrrrrrrrrrrrrrr</h3>
+                        <p>Farmaci: 0</p>
+                        <ul>
+                            
+                        </ul>
+                    </div>
+                </div>
+        </div>
+
+        <!-- Aggiungi/Modifica Farmaco -->
+        <div id="add-medicine" class="tab-content hidden">
+            <h2 id="medicine-form-title">Aggiungi Farmaco</h2>
+            <form id="medicine-form" class="card">
+                <input type="hidden" id="medicine-id">
+                <div class="form-group">
+                    <label for="patient">Paziente</label>
+                    <select id="patient" required=""></select>
+                </div>
+                <div class="form-group">
+                    <label for="medicine-name">Nome Farmaco</label>
+                    <input type="text" id="medicine-name" required="">
+                </div>
+                <div class="form-group">
+                    <label for="medicine-image">Immagine Farmaco</label>
+                    <input type="file" id="medicine-image" accept="image/*">
+                    <img id="medicine-image-preview" class="hidden">
+                </div>
+                <div class="form-group">
+                    <label for="pills-per-box">Quantità per scatola</label>
+                    <input type="number" id="pills-per-box" required="">
+                </div>
+                <div class="form-group">
+                    <label for="boxes">Numero di scatole</label>
+                    <input type="number" id="boxes" required="">
+                </div>
+                <div class="form-group">
+                    <label>Dose per assunzione</label>
+                    <div>
+                        <input type="radio" name="dose" id="dose-full" value="1" checked="">
+                        <label for="dose-full">Intera</label>
+                        <input type="radio" name="dose" id="dose-half" value="0.5">
+                        <label for="dose-half">Mezza</label>
+                        <input type="radio" name="dose" id="dose-quarter" value="0.25">
+                        <label for="dose-quarter">Un quarto</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frequenza di assunzione</label>
+                    <select id="frequency-type" required="">
+                        <option value="daily">Giornaliera</option>
+                        <option value="alternate-days">Un giorno sì e uno no</option>
+                        <option value="weekly">Settimanale</option>
+                        <option value="biweekly">Ogni 15 giorni</option>
+                        <option value="monthly">Mensile</option>
+                        <option value="custom">Personalizzata</option>
+                    </select>
+                    <textarea id="frequency-custom" class="hidden mt-2" placeholder="Es: 3 mesi di assunzione, 1 mese di pausa"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="alert-threshold">Avvisami quando rimangono:</label>
+                    <input type="number" id="alert-threshold" value="5" min="1"> compresse
+                </div>
+                <div class="form-group">
+                    <label for="medicine-notes">Note</label>
+                    <textarea id="medicine-notes" rows="3" placeholder="Note aggiuntive sul farmaco"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salva</button>
+                <button type="button" onclick="cancelEditMedicine()" class="btn btn-danger">Annulla</button>
+            </form>
+        </div>
+
+        <!-- Aggiungi/Modifica Paziente -->
+        <div id="add-patient" class="tab-content hidden">
+            <h2 id="patient-form-title">Aggiungi Paziente</h2>
+            <form id="patient-form" class="card">
+                <input type="hidden" id="patient-id">
+                <div class="form-group">
+                    <label for="patient-name">Nome Paziente</label>
+                    <input type="text" id="patient-name" required="">
+                </div>
+                <button type="submit" class="btn btn-primary">Salva</button>
+                <button type="button" onclick="cancelEditPatient()" class="btn btn-danger">Annulla</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Database Locale (localStorage)
+        const db = {
+            medicines: JSON.parse(localStorage.getItem('medicines')) || [],
+            patients: JSON.parse(localStorage.getItem('patients')) || [],
+            saveMedicines: function() {
+                localStorage.setItem('medicines', JSON.stringify(this.medicines));
+                this.checkAlerts();
+            },
+            savePatients: function() {
+                localStorage.setItem('patients', JSON.stringify(this.patients));
+            },
+            checkAlerts: function() {
+                this.medicines.forEach(med => {
+                    const totalPills = med.pillsPerBox * med.boxes;
+                    if (totalPills <= med.alertThreshold) {
+                        this.showAlert(med);
+                    }
+                });
+            },
+            showAlert: function(medicine) {
+                if (!("Notification" in window)) return;
+                
+                if (Notification.permission === "granted") {
+                    new Notification(`Scorta bassa per ${medicine.name}`, {
+                        body: `Rimangono solo ${medicine.pillsPerBox * medicine.boxes} compresse!`,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/206/206853.png'
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            this.showAlert(medicine);
+                        }
+                    });
+                }
+            }
+        };
+
+        // Mostra/Nascondi Tab
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'medicines') renderMedicines();
+            if (tabId === 'patients') renderPatients();
+            if (tabId === 'add-medicine') loadPatientSelect();
+            if (tabId === 'add-patient') resetPatientForm();
+        }
+
+        // Gestione Immagine
+        document.getElementById('medicine-image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('medicine-image-preview');
+                    preview.src = event.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Gestione Frequenza Personalizzata
+        document.getElementById('frequency-type').addEventListener('change', function() {
+            const customField = document.getElementById('frequency-custom');
+            customField.classList.toggle('hidden', this.value !== 'custom');
+        });
+
+        // Render Liste
+        function renderMedicines() {
+            const container = document.getElementById('medicine-list');
+            container.innerHTML = db.medicines.map(medicine => {
+                const patient = db.patients.find(p => p.id === medicine.patientId) || { name: 'Sconosciuto' };
+                const totalPills = medicine.pillsPerBox * medicine.boxes;
+                const isLow = totalPills <= medicine.alertThreshold;
+                const frequencyText = getFrequencyText(medicine.frequencyType, medicine.frequencyCustom);
+                
+                return `
+                    <div class="card medicine-card ${isLow ? 'low' : ''}">
+                        <div class="action-buttons">
+                            <button onclick="editMedicine('${medicine.id}')" class="btn btn-secondary">Modifica</button>
+                            <button onclick="deleteMedicine('${medicine.id}')" class="btn btn-danger">Elimina</button>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="med-${medicine.id}" class="medicine-checkbox">
+                        </div>
+                        ${medicine.imageUrl ? `<img src="${medicine.imageUrl}" style="max-width: 100px; float: right;">` : ''}
+                        <h3>${medicine.name}</h3>
+                        <p>Paziente: ${patient.name}</p>
+                        <p>Scatole: ${medicine.boxes} (${totalPills} compresse)</p>
+                        <p>Dose: ${medicine.dose === 1 ? 'Intera' : medicine.dose === 0.5 ? 'Mezza' : 'Un quarto'}</p>
+                        <p>Frequenza: ${frequencyText}</p>
+                        <p>Avviso: quando rimangono ≤ ${medicine.alertThreshold} compresse</p>
+                        ${medicine.notes ? `<p><strong>Note:</strong> ${medicine.notes}</p>` : ''}
+                        ${isLow ? '<p class="warning">🔔 Scorta bassa! Ordina ora.</p>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getFrequencyText(type, customText) {
+            switch(type) {
+                case 'daily': return 'Ogni giorno';
+                case 'alternate-days': return 'Un giorno sì e uno no';
+                case 'weekly': return 'Ogni settimana';
+                case 'biweekly': return 'Ogni 15 giorni';
+                case 'monthly': return 'Ogni mese';
+                case 'custom': return customText || 'Personalizzata';
+                default: return type;
+            }
+        }
+
+        function renderPatients() {
+            const container = document.getElementById('patient-list');
+            container.innerHTML = db.patients.map(patient => {
+                const patientMedicines = db.medicines.filter(m => m.patientId === patient.id);
+                return `
+                    <div class="card">
+                        <div class="action-buttons">
+                            <button onclick="editPatient('${patient.id}')" class="btn btn-secondary">Modifica</button>
+                            <button onclick="deletePatient('${patient.id}')" class="btn btn-danger">Elimina</button>
+                        </div>
+                        <h3>${patient.name}</h3>
+                        <p>Farmaci: ${patientMedicines.length}</p>
+                        <ul>
+                            ${patientMedicines.map(m => `<li>${m.name} (${m.boxes} scatole)</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Carica Pazienti nel Select
+        function loadPatientSelect() {
+            const select = document.getElementById('patient');
+            select.innerHTML = db.patients.map(patient => 
+                `<option value="${patient.id}">${patient.name}</option>`
+            ).join('');
+        }
+
+        // Form Aggiungi/Modifica Paziente
+        document.getElementById('patient-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('patient-id').value;
+            const name = document.getElementById('patient-name').value;
+            
+            if (id) {
+                // Modifica paziente esistente
+                const patientIndex = db.patients.findIndex(p => p.id === id);
+                if (patientIndex !== -1) {
+                    db.patients[patientIndex].name = name;
+                    db.savePatients();
+                    alert('Paziente modificato!');
+                    showTab('patients');
+                }
+            } else {
+                // Aggiungi nuovo paziente
+                const newPatient = {
+                    id: Date.now().toString(),
+                    name: name
+                };
+                db.patients.push(newPatient);
+                db.savePatients();
+                alert('Paziente aggiunto!');
+                showTab('patients');
+            }
+            this.reset();
+        });
+
+        function editPatient(patientId) {
+            const patient = db.patients.find(p => p.id === patientId);
+            if (patient) {
+                document.getElementById('patient-form-title').textContent = 'Modifica Paziente';
+                document.getElementById('patient-id').value = patient.id;
+                document.getElementById('patient-name').value = patient.name;
+                showTab('add-patient');
+            }
+        }
+
+        function deletePatient(patientId) {
+            if (confirm('Sei sicuro di voler eliminare questo paziente?')) {
+                // Verifica se ci sono farmaci associati
+                const hasMedicines = db.medicines.some(m => m.patientId === patientId);
+                if (hasMedicines) {
+                    alert('Impossibile eliminare: ci sono farmaci associati a questo paziente!');
+                    return;
+                }
+                
+                db.patients = db.patients.filter(p => p.id !== patientId);
+                db.savePatients();
+                renderPatients();
+            }
+        }
+
+        function cancelEditPatient() {
+            document.getElementById('patient-form').reset();
+            showTab('patients');
+        }
+
+        function resetPatientForm() {
+            document.getElementById('patient-form-title').textContent = 'Aggiungi Paziente';
+            document.getElementById('patient-form').reset();
+            document.getElementById('patient-id').value = '';
+        }
+
+        // Form Aggiungi/Modifica Farmaco
+        document.getElementById('medicine-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Converti immagine in Base64
+            const imageInput = document.getElementById('medicine-image');
+            let imageUrl = '';
+            if (imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imageUrl = event.target.result;
+                    saveMedicine(imageUrl);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                // Se non c'è nuova immagine, mantieni quella esistente per le modifiche
+                const medicineId = document.getElementById('medicine-id').value;
+                if (medicineId) {
+                    const existingMedicine = db.medicines.find(m => m.id === medicineId);
+                    if (existingMedicine) {
+                        imageUrl = existingMedicine.imageUrl;
+                    }
+                }
+                saveMedicine(imageUrl);
+            }
+
+            function saveMedicine(imageUrl) {
+                const medicineId = document.getElementById('medicine-id').value;
+                const medicineData = {
+                    id: medicineId || Date.now().toString(),
+                    patientId: document.getElementById('patient').value,
+                    name: document.getElementById('medicine-name').value,
+                    imageUrl: imageUrl,
+                    pillsPerBox: parseInt(document.getElementById('pills-per-box').value),
+                    boxes: parseInt(document.getElementById('boxes').value),
+                    dose: parseFloat(document.querySelector('input[name="dose"]:checked').value),
+                    frequencyType: document.getElementById('frequency-type').value,
+                    frequencyCustom: document.getElementById('frequency-custom').value,
+                    alertThreshold: parseInt(document.getElementById('alert-threshold').value) || 5,
+                    notes: document.getElementById('medicine-notes').value
+                };
+
+                if (medicineId) {
+                    // Modifica farmaco esistente
+                    const index = db.medicines.findIndex(m => m.id === medicineId);
+                    if (index !== -1) {
+                        db.medicines[index] = medicineData;
+                    }
+                } else {
+                    // Aggiungi nuovo farmaco
+                    db.medicines.push(medicineData);
+                }
+
+                db.saveMedicines();
+                e.target.reset();
+                document.getElementById('medicine-image-preview').classList.add('hidden');
+                document.getElementById('medicine-form-title').textContent = 'Aggiungi Farmaco';
+                document.getElementById('medicine-id').value = '';
+                alert(medicineId ? 'Farmaco modificato!' : 'Farmaco aggiunto!');
+                showTab('medicines');
+            }
+        });
+
+        function editMedicine(medicineId) {
+            const medicine = db.medicines.find(m => m.id === medicineId);
+            if (medicine) {
+                document.getElementById('medicine-form-title').textContent = 'Modifica Farmaco';
+                document.getElementById('medicine-id').value = medicine.id;
+                document.getElementById('patient').value = medicine.patientId;
+                document.getElementById('medicine-name').value = medicine.name;
+                document.getElementById('pills-per-box').value = medicine.pillsPerBox;
+                document.getElementById('boxes').value = medicine.boxes;
+                
+                // Imposta il radio button della dose
+                document.querySelector(`input[name="dose"][value="${medicine.dose}"]`).checked = true;
+                
+                document.getElementById('frequency-type').value = medicine.frequencyType;
+                document.getElementById('frequency-custom').value = medicine.frequencyCustom || '';
+                document.getElementById('frequency-custom').classList.toggle('hidden', medicine.frequencyType !== 'custom');
+                document.getElementById('alert-threshold').value = medicine.alertThreshold;
+                document.getElementById('medicine-notes').value = medicine.notes || '';
+                
+                // Mostra l'immagine esistente se presente
+                const preview = document.getElementById('medicine-image-preview');
+                if (medicine.imageUrl) {
+                    preview.src = medicine.imageUrl;
+                    preview.classList.remove('hidden');
+                } else {
+                    preview.classList.add('hidden');
+                }
+                
+                showTab('add-medicine');
+            }
+        }
+
+        function deleteMedicine(medicineId) {
+            if (confirm('Sei sicuro di voler eliminare questo farmaco?')) {
+                db.medicines = db.medicines.filter(m => m.id !== medicineId);
+                db.saveMedicines();
+                renderMedicines();
+            }
+        }
+
+        function cancelEditMedicine() {
+            document.getElementById('medicine-form').reset();
+            document.getElementById('medicine-image-preview').classList.add('hidden');
+            document.getElementById('medicine-form-title').textContent = 'Aggiungi Farmaco';
+            document.getElementById('medicine-id').value = '';
+            showTab('medicines');
+        }
+
+        // Richiesta multipla al Dottore
+        function requestMultipleMedicines() {
+            const checkboxes = document.querySelectorAll('.medicine-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Seleziona almeno un farmaco da richiedere');
+                return;
+            }
+
+            const selectedMeds = Array.from(checkboxes).map(cb => {
+                const medicineId = cb.id.replace('med-', '');
+                return db.medicines.find(m => m.id === medicineId);
+            });
+
+            // Raggruppa per paziente
+            const medsByPatient = {};
+            selectedMeds.forEach(med => {
+                const patient = db.patients.find(p => p.id === med.patientId) || { name: 'Sconosciuto' };
+                if (!medsByPatient[patient.name]) {
+                    medsByPatient[patient.name] = [];
+                }
+                medsByPatient[patient.name].push(med);
+            });
+
+            // Crea il corpo dell'email per ogni paziente
+            for (const [patientName, meds] of Object.entries(medsByPatient)) {
+                const subject = `Richiesta farmaci per ${patientName}`;
+                let body = `Buongiorno Dottoressa,\n\nrichiesta la prescrizione per i seguenti farmaci per ${patientName}:\n\n`;
+
+                meds.forEach(med => {
+                    body += `- ${med.name}\n`;
+                    
+                });
+
+                body += `Grazie.\n\nCordiali saluti,`;
+                window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+            }
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            // Richiedi permesso notifiche
+            if ("Notification" in window) {
+                Notification.requestPermission();
+            }
+            
+            renderMedicines();
+            renderPatients();
+            
+            // Controlla avvisi all'avvio
+            setTimeout(() => db.checkAlerts(), 1000);
+        });
+    </script>
+
+</body></html>
