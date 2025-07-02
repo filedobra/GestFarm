@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0055)file:///C:/Users/siderim/Desktop/GestFarm/GestFarm.html -->
-<html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="it">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Farmaci</title>
     <style>
@@ -149,6 +149,11 @@
                 grid-template-columns: 1fr 1fr;
             }
         }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -157,151 +162,228 @@
     </header>
 
     <div class="container">
-        <div class="tabs">
-            <div class="tab active" onclick="showTab(&#39;medicines&#39;)">Farmaci</div>
-            <div class="tab" onclick="showTab(&#39;patients&#39;)">Pazienti</div>
-            <div class="tab" onclick="showTab(&#39;add-medicine&#39;)">Aggiungi Farmaco</div>
-            <div class="tab" onclick="showTab(&#39;add-patient&#39;)">Aggiungi Paziente</div>
-        </div>
+        <div id="loading" class="loading">Caricamento in corso...</div>
+        
+        <div id="app-content" class="hidden">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('medicines')">Farmaci</div>
+                <div class="tab" onclick="showTab('patients')">Pazienti</div>
+                <div class="tab" onclick="showTab('add-medicine')">Aggiungi Farmaco</div>
+                <div class="tab" onclick="showTab('add-patient')">Aggiungi Paziente</div>
+            </div>
 
-        <!-- Lista Farmaci -->
-        <div id="medicines" class="tab-content">
-            <h2>I tuoi Farmaci</h2>
-            <button onclick="requestMultipleMedicines()" class="btn btn-primary">Richiedi farmaci selezionati al Dottore</button>
-            <div id="medicine-list"></div>
-        </div>
+            <!-- Lista Farmaci -->
+            <div id="medicines" class="tab-content">
+                <h2>I tuoi Farmaci</h2>
+                <button onclick="requestMultipleMedicines()" class="btn btn-primary">Richiedi farmaci selezionati al Dottore</button>
+                <div id="medicine-list"></div>
+            </div>
 
-        <!-- Lista Pazienti -->
-        <div id="patients" class="tab-content hidden">
-            <h2>Pazienti</h2>
-            <div id="patient-list">
-                    <div class="card">
-                        <div class="action-buttons">
-                            <button onclick="editPatient(&#39;1750925735058&#39;)" class="btn btn-secondary">Modifica</button>
-                            <button onclick="deletePatient(&#39;1750925735058&#39;)" class="btn btn-danger">Elimina</button>
+            <!-- Lista Pazienti -->
+            <div id="patients" class="tab-content hidden">
+                <h2>Pazienti</h2>
+                <div id="patient-list"></div>
+            </div>
+
+            <!-- Aggiungi/Modifica Farmaco -->
+            <div id="add-medicine" class="tab-content hidden">
+                <h2 id="medicine-form-title">Aggiungi Farmaco</h2>
+                <form id="medicine-form" class="card">
+                    <input type="hidden" id="medicine-id">
+                    <div class="form-group">
+                        <label for="patient">Paziente</label>
+                        <select id="patient" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicine-name">Nome Farmaco</label>
+                        <input type="text" id="medicine-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicine-image">Immagine Farmaco</label>
+                        <input type="file" id="medicine-image" accept="image/*">
+                        <img id="medicine-image-preview" class="hidden">
+                    </div>
+                    <div class="form-group">
+                        <label for="pills-per-box">Quantità per scatola</label>
+                        <input type="number" id="pills-per-box" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="boxes">Numero di scatole</label>
+                        <input type="number" id="boxes" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dose per assunzione</label>
+                        <div>
+                            <input type="radio" name="dose" id="dose-full" value="1" checked>
+                            <label for="dose-full">Intera</label>
+                            <input type="radio" name="dose" id="dose-half" value="0.5">
+                            <label for="dose-half">Mezza</label>
+                            <input type="radio" name="dose" id="dose-quarter" value="0.25">
+                            <label for="dose-quarter">Un quarto</label>
                         </div>
-                        <h3>Francesca De Rosa</h3>
-                        <p>Farmaci: 0</p>
-                        <ul>
-                            
-                        </ul>
                     </div>
-                
-                    <div class="card">
-                        <div class="action-buttons">
-                            <button onclick="editPatient(&#39;1750999047289&#39;)" class="btn btn-secondary">Modifica</button>
-                            <button onclick="deletePatient(&#39;1750999047289&#39;)" class="btn btn-danger">Elimina</button>
-                        </div>
-                        <h3>Edoardo Sideri</h3>
-                        <p>Farmaci: 0</p>
-                        <ul>
-                            
-                        </ul>
+                    <div class="form-group">
+                        <label>Frequenza di assunzione</label>
+                        <select id="frequency-type" required>
+                            <option value="daily">Giornaliera</option>
+                            <option value="alternate-days">Un giorno sì e uno no</option>
+                            <option value="weekly">Settimanale</option>
+                            <option value="biweekly">Ogni 15 giorni</option>
+                            <option value="monthly">Mensile</option>
+                            <option value="custom">Personalizzata</option>
+                        </select>
+                        <textarea id="frequency-custom" class="hidden mt-2" placeholder="Es: 3 mesi di assunzione, 1 mese di pausa"></textarea>
                     </div>
-                
-                    <div class="card">
-                        <div class="action-buttons">
-                            <button onclick="editPatient(&#39;1751007923281&#39;)" class="btn btn-secondary">Modifica</button>
-                            <button onclick="deletePatient(&#39;1751007923281&#39;)" class="btn btn-danger">Elimina</button>
-                        </div>
-                        <h3>rrrrrrrrrrrrrrrrrrrrr</h3>
-                        <p>Farmaci: 0</p>
-                        <ul>
-                            
-                        </ul>
+                    <div class="form-group">
+                        <label for="alert-threshold">Avvisami quando rimangono:</label>
+                        <input type="number" id="alert-threshold" value="5" min="1"> compresse
                     </div>
-                </div>
-        </div>
+                    <div class="form-group">
+                        <label for="medicine-notes">Note</label>
+                        <textarea id="medicine-notes" rows="3" placeholder="Note aggiuntive sul farmaco"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                    <button type="button" onclick="cancelEditMedicine()" class="btn btn-danger">Annulla</button>
+                </form>
+            </div>
 
-        <!-- Aggiungi/Modifica Farmaco -->
-        <div id="add-medicine" class="tab-content hidden">
-            <h2 id="medicine-form-title">Aggiungi Farmaco</h2>
-            <form id="medicine-form" class="card">
-                <input type="hidden" id="medicine-id">
-                <div class="form-group">
-                    <label for="patient">Paziente</label>
-                    <select id="patient" required=""></select>
-                </div>
-                <div class="form-group">
-                    <label for="medicine-name">Nome Farmaco</label>
-                    <input type="text" id="medicine-name" required="">
-                </div>
-                <div class="form-group">
-                    <label for="medicine-image">Immagine Farmaco</label>
-                    <input type="file" id="medicine-image" accept="image/*">
-                    <img id="medicine-image-preview" class="hidden">
-                </div>
-                <div class="form-group">
-                    <label for="pills-per-box">Quantità per scatola</label>
-                    <input type="number" id="pills-per-box" required="">
-                </div>
-                <div class="form-group">
-                    <label for="boxes">Numero di scatole</label>
-                    <input type="number" id="boxes" required="">
-                </div>
-                <div class="form-group">
-                    <label>Dose per assunzione</label>
-                    <div>
-                        <input type="radio" name="dose" id="dose-full" value="1" checked="">
-                        <label for="dose-full">Intera</label>
-                        <input type="radio" name="dose" id="dose-half" value="0.5">
-                        <label for="dose-half">Mezza</label>
-                        <input type="radio" name="dose" id="dose-quarter" value="0.25">
-                        <label for="dose-quarter">Un quarto</label>
+            <!-- Aggiungi/Modifica Paziente -->
+            <div id="add-patient" class="tab-content hidden">
+                <h2 id="patient-form-title">Aggiungi Paziente</h2>
+                <form id="patient-form" class="card">
+                    <input type="hidden" id="patient-id">
+                    <div class="form-group">
+                        <label for="patient-name">Nome Paziente</label>
+                        <input type="text" id="patient-name" required>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Frequenza di assunzione</label>
-                    <select id="frequency-type" required="">
-                        <option value="daily">Giornaliera</option>
-                        <option value="alternate-days">Un giorno sì e uno no</option>
-                        <option value="weekly">Settimanale</option>
-                        <option value="biweekly">Ogni 15 giorni</option>
-                        <option value="monthly">Mensile</option>
-                        <option value="custom">Personalizzata</option>
-                    </select>
-                    <textarea id="frequency-custom" class="hidden mt-2" placeholder="Es: 3 mesi di assunzione, 1 mese di pausa"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="alert-threshold">Avvisami quando rimangono:</label>
-                    <input type="number" id="alert-threshold" value="5" min="1"> compresse
-                </div>
-                <div class="form-group">
-                    <label for="medicine-notes">Note</label>
-                    <textarea id="medicine-notes" rows="3" placeholder="Note aggiuntive sul farmaco"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Salva</button>
-                <button type="button" onclick="cancelEditMedicine()" class="btn btn-danger">Annulla</button>
-            </form>
-        </div>
-
-        <!-- Aggiungi/Modifica Paziente -->
-        <div id="add-patient" class="tab-content hidden">
-            <h2 id="patient-form-title">Aggiungi Paziente</h2>
-            <form id="patient-form" class="card">
-                <input type="hidden" id="patient-id">
-                <div class="form-group">
-                    <label for="patient-name">Nome Paziente</label>
-                    <input type="text" id="patient-name" required="">
-                </div>
-                <button type="submit" class="btn btn-primary">Salva</button>
-                <button type="button" onclick="cancelEditPatient()" class="btn btn-danger">Annulla</button>
-            </form>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                    <button type="button" onclick="cancelEditPatient()" class="btn btn-danger">Annulla</button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        // Database Locale (localStorage)
+        // Database con fallback
         const db = {
-            medicines: JSON.parse(localStorage.getItem('medicines')) || [],
-            patients: JSON.parse(localStorage.getItem('patients')) || [],
-            saveMedicines: function() {
-                localStorage.setItem('medicines', JSON.stringify(this.medicines));
+            useIndexedDB: true,
+            db: null,
+            medicines: [],
+            patients: [],
+            
+            init: async function() {
+                try {
+                    // Prova prima con IndexedDB
+                    const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+                    if (!indexedDB) {
+                        throw new Error("IndexedDB non supportato");
+                    }
+                    
+                    const request = indexedDB.open('GestFarmDB', 1);
+                    
+                    await new Promise((resolve, reject) => {
+                        request.onupgradeneeded = function(e) {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('medicines')) {
+                                db.createObjectStore('medicines', { keyPath: 'id' });
+                            }
+                            if (!db.objectStoreNames.contains('patients')) {
+                                db.createObjectStore('patients', { keyPath: 'id' });
+                            }
+                        };
+                        
+                        request.onsuccess = function(e) {
+                            db.db = e.target.result;
+                            resolve();
+                        };
+                        
+                        request.onerror = function(e) {
+                            console.error("IndexedDB error:", e.target.error);
+                            reject(e.target.error);
+                        };
+                    });
+                    
+                    // Carica i dati da IndexedDB
+                    await this.loadFromIndexedDB();
+                    this.useIndexedDB = true;
+                } catch (e) {
+                    console.warn("IndexedDB non disponibile, uso localStorage", e);
+                    this.useIndexedDB = false;
+                    this.loadFromLocalStorage();
+                }
+                
+                // Mostra l'app
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                
+                // Controlla avvisi all'avvio
+                setTimeout(() => this.checkAlerts(), 1000);
+            },
+            
+            loadFromIndexedDB: async function() {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(['medicines', 'patients'], 'readonly');
+                    
+                    const medicinesRequest = tx.objectStore('medicines').getAll();
+                    const patientsRequest = tx.objectStore('patients').getAll();
+                    
+                    medicinesRequest.onsuccess = () => {
+                        this.medicines = medicinesRequest.result || [];
+                    };
+                    
+                    patientsRequest.onsuccess = () => {
+                        this.patients = patientsRequest.result || [];
+                    };
+                    
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (e) => reject(e.target.error);
+                });
+            },
+            
+            loadFromLocalStorage: function() {
+                this.medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+                this.patients = JSON.parse(localStorage.getItem('patients')) || [];
+            },
+            
+            saveMedicines: async function() {
+                if (this.useIndexedDB) {
+                    const tx = this.db.transaction('medicines', 'readwrite');
+                    const store = tx.objectStore('medicines');
+                    
+                    // Cancella tutti i record esistenti
+                    const clearRequest = store.clear();
+                    
+                    clearRequest.onsuccess = () => {
+                        // Aggiungi tutti i farmaci
+                        this.medicines.forEach(med => {
+                            store.put(med);
+                        });
+                    };
+                } else {
+                    localStorage.setItem('medicines', JSON.stringify(this.medicines));
+                }
                 this.checkAlerts();
             },
-            savePatients: function() {
-                localStorage.setItem('patients', JSON.stringify(this.patients));
+            
+            savePatients: async function() {
+                if (this.useIndexedDB) {
+                    const tx = this.db.transaction('patients', 'readwrite');
+                    const store = tx.objectStore('patients');
+                    
+                    // Cancella tutti i record esistenti
+                    const clearRequest = store.clear();
+                    
+                    clearRequest.onsuccess = () => {
+                        // Aggiungi tutti i pazienti
+                        this.patients.forEach(patient => {
+                            store.put(patient);
+                        });
+                    };
+                } else {
+                    localStorage.setItem('patients', JSON.stringify(this.patients));
+                }
             },
+            
             checkAlerts: function() {
                 this.medicines.forEach(med => {
                     const totalPills = med.pillsPerBox * med.boxes;
@@ -310,6 +392,7 @@
                     }
                 });
             },
+            
             showAlert: function(medicine) {
                 if (!("Notification" in window)) return;
                 
@@ -438,7 +521,7 @@
         }
 
         // Form Aggiungi/Modifica Paziente
-        document.getElementById('patient-form').addEventListener('submit', function(e) {
+        document.getElementById('patient-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('patient-id').value;
             const name = document.getElementById('patient-name').value;
@@ -448,7 +531,7 @@
                 const patientIndex = db.patients.findIndex(p => p.id === id);
                 if (patientIndex !== -1) {
                     db.patients[patientIndex].name = name;
-                    db.savePatients();
+                    await db.savePatients();
                     alert('Paziente modificato!');
                     showTab('patients');
                 }
@@ -459,7 +542,7 @@
                     name: name
                 };
                 db.patients.push(newPatient);
-                db.savePatients();
+                await db.savePatients();
                 alert('Paziente aggiunto!');
                 showTab('patients');
             }
@@ -476,7 +559,7 @@
             }
         }
 
-        function deletePatient(patientId) {
+        async function deletePatient(patientId) {
             if (confirm('Sei sicuro di voler eliminare questo paziente?')) {
                 // Verifica se ci sono farmaci associati
                 const hasMedicines = db.medicines.some(m => m.patientId === patientId);
@@ -486,7 +569,7 @@
                 }
                 
                 db.patients = db.patients.filter(p => p.id !== patientId);
-                db.savePatients();
+                await db.savePatients();
                 renderPatients();
             }
         }
@@ -503,7 +586,7 @@
         }
 
         // Form Aggiungi/Modifica Farmaco
-        document.getElementById('medicine-form').addEventListener('submit', function(e) {
+        document.getElementById('medicine-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Converti immagine in Base64
@@ -525,10 +608,10 @@
                         imageUrl = existingMedicine.imageUrl;
                     }
                 }
-                saveMedicine(imageUrl);
+                await saveMedicine(imageUrl);
             }
 
-            function saveMedicine(imageUrl) {
+            async function saveMedicine(imageUrl) {
                 const medicineId = document.getElementById('medicine-id').value;
                 const medicineData = {
                     id: medicineId || Date.now().toString(),
@@ -555,7 +638,7 @@
                     db.medicines.push(medicineData);
                 }
 
-                db.saveMedicines();
+                await db.saveMedicines();
                 e.target.reset();
                 document.getElementById('medicine-image-preview').classList.add('hidden');
                 document.getElementById('medicine-form-title').textContent = 'Aggiungi Farmaco';
@@ -597,10 +680,10 @@
             }
         }
 
-        function deleteMedicine(medicineId) {
+        async function deleteMedicine(medicineId) {
             if (confirm('Sei sicuro di voler eliminare questo farmaco?')) {
                 db.medicines = db.medicines.filter(m => m.id !== medicineId);
-                db.saveMedicines();
+                await db.saveMedicines();
                 renderMedicines();
             }
         }
@@ -643,27 +726,27 @@
 
                 meds.forEach(med => {
                     body += `- ${med.name}\n`;
-                    
                 });
 
-                body += `Grazie.\n\nCordiali saluti,`;
+                body += `\nGrazie.\n\nCordiali saluti,`;
                 window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
             }
         }
 
         // Inizializzazione
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Richiedi permesso notifiche
             if ("Notification" in window) {
                 Notification.requestPermission();
             }
             
+            // Inizializza il database
+            await db.init();
+            
+            // Renderizza le liste
             renderMedicines();
             renderPatients();
-            
-            // Controlla avvisi all'avvio
-            setTimeout(() => db.checkAlerts(), 1000);
         });
     </script>
-
-</body></html>
+</body>
+</html>
