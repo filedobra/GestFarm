@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Farmaci</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-pills"></i> Gestione Farmaci</h1>
+            <button class="btn-add" id="btnAddMedicine">
+                <i class="fas fa-plus"></i> Aggiungi Farmaco
+            </button>
+        </header>
+
+        <!-- Sezione Notifiche -->
+        <div class="notifications" id="notifications">
+            <div class="notification-item warning" style="display: none;" id="lowStockNotification">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Alcuni farmaci stanno finendo!</span>
+                <button class="btn-close" onclick="closeNotification()">×</button>
+            </div>
+        </div>
+
+        <!-- Lista Farmaci -->
+        <div class="medicines-grid" id="medicinesGrid">
+            <!-- I farmaci verranno inseriti dinamicamente qui -->
+        </div>
+
+        <!-- Modal per Aggiungere/Modificare Farmaco -->
+        <div class="modal" id="medicineModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Aggiungi Farmaco</h2>
+                    <button class="btn-close" onclick="closeModal()">×</button>
+                </div>
+                
+                <form id="medicineForm" class="medicine-form">
+                    <div class="form-group">
+                        <label for="medicineName">Nome Farmaco *</label>
+                        <input type="text" id="medicineName" name="medicineName" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantityPerBox">Quantità per Scatola *</label>
+                            <input type="number" id="quantityPerBox" name="quantityPerBox" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numberOfBoxes">Numero Scatole *</label>
+                            <input type="number" id="numberOfBoxes" name="numberOfBoxes" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicinePhoto">Foto Farmaco</label>
+                        <input type="file" id="medicinePhoto" name="medicinePhoto" accept="image/*">
+                        <div class="photo-preview" id="photoPreview"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dosage">Dosaggio per Assunzione</label>
+                            <select id="dosage" name="dosage">
+                                <option value="1/4">Un quarto (1/4)</option>
+                                <option value="1/2">Mezza (1/2)</option>
+                                <option value="1" selected>Intera (1)</option>
+                                <option value="2">Due (2)</option>
+                                <option value="3">Tre (3)</option>
+                                <option value="custom">Personalizzato</option>
+                            </select>
+                            <input type="text" id="customDosage" name="customDosage" placeholder="Inserisci dosaggio personalizzato" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="frequency">Frequenza</label>
+                            <select id="frequency" name="frequency">
+                                <option value="daily">Ogni giorno</option>
+                                <option value="alternate">Giorni alternati</option>
+                                <option value="twice-daily">Due volte al giorno</option>
+                                <option value="three-times-daily">Tre volte al giorno</option>
+                                <option value="weekly">Una volta a settimana</option>
+                                <option value="monthly">Una volta al mese</option>
+                                <option value="as-needed">Al bisogno</option>
+                                <option value="custom">Personalizzato</option>
+                            </select>
+                            <input type="text" id="customFrequency" name="customFrequency" placeholder="Inserisci frequenza personalizzata" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Note</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Inserisci note aggiuntive..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">Salva Farmaco</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal per Dettagli Farmaco -->
+        <div class="modal" id="detailsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="detailsTitle">Dettagli Farmaco</h2>
+                    <button class="btn-close" onclick="closeDetailsModal()">×</button>
+                </div>
+                
+                <div class="medicine-details" id="medicineDetails">
+                    <!-- I dettagli verranno inseriti dinamicamente qui -->
+                </div>
+
+                <div class="details-actions">
+                    <button class="btn-secondary" onclick="closeDetailsModal()">Chiudi</button>
+                    <button class="btn-warning" id="editMedicineBtn">
+                        <i class="fas fa-edit"></i> Modifica
+                    </button>
+                    <button class="btn-info" id="printMedicineBtn">
+                        <i class="fas fa-print"></i> Stampa PDF
+                    </button>
+                    <button class="btn-primary" id="emailDoctorBtn">
+                        <i class="fas fa-envelope"></i> Email Dottore
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal per Email al Dottore -->
+        <div class="modal" id="emailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Invia Email al Dottore</h2>
+                    <button class="btn-close" onclick="closeEmailModal()">×</button>
+                </div>
+                
+                <form id="emailForm" class="email-form">
+                    <div class="form-group">
+                        <label for="doctorEmail">Email Dottore *</label>
+                        <input type="email" id="doctorEmail" name="doctorEmail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailSubject">Oggetto</label>
+                        <input type="text" id="emailSubject" name="emailSubject" value="Richiesta Prescrizione Farmaco">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailMessage">Messaggio</label>
+                        <textarea id="emailMessage" name="emailMessage" rows="6" required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeEmailModal()">Annulla</button>
+                        <button type="submit" class="btn-primary">Invia Email</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Overlay per i modal -->
+        <div class="modal-overlay" id="modalOverlay"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
